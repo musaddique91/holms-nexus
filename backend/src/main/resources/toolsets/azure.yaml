@@ -1,0 +1,53 @@
+name: azure
+description: Read-only Azure inspection via the Azure CLI (App Service, Container Apps, AKS, activity log, Log Analytics).
+binary: az
+tools:
+  - name: az_webapps
+    description: App Service web apps with state and host names.
+    parameters:
+      resource_group: {type: string, description: "Resource group; omit for the whole subscription"}
+    command:
+      - az
+      - webapp
+      - list
+      - {if: resource_group, args: ["-g", "${resource_group}"]}
+      - "--query"
+      - "[].{name:name,state:state,group:resourceGroup,host:defaultHostName}"
+      - "-o"
+      - table
+  - name: az_containerapps
+    description: Container Apps with provisioning and running status.
+    parameters:
+      resource_group: {type: string, description: "Resource group; omit for the whole subscription"}
+    command:
+      - az
+      - containerapp
+      - list
+      - {if: resource_group, args: ["-g", "${resource_group}"]}
+      - "--query"
+      - "[].{name:name,group:resourceGroup,state:properties.runningStatus,revision:properties.latestRevisionName}"
+      - "-o"
+      - table
+  - name: az_containerapp_logs
+    description: Recent console logs of a Container App.
+    parameters:
+      name: {type: string, required: true, description: "Container App name"}
+      resource_group: {type: string, required: true, description: "Resource group"}
+      tail: {type: integer, default: "200", description: "Number of lines"}
+    command: [az, containerapp, logs, show, "-n", "${name}", "-g", "${resource_group}", "--tail", "${tail}", "--follow", "false", "--format", text]
+  - name: az_aks_clusters
+    description: AKS clusters with Kubernetes version and power state.
+    parameters: {}
+    command: [az, aks, list, "--query", "[].{name:name,group:resourceGroup,version:kubernetesVersion,state:powerState.code}", "-o", table]
+  - name: az_activity_log_failures
+    description: Failed operations from the Azure activity log in a recent window (deploy failures, scaling errors).
+    parameters:
+      offset: {type: string, default: "6h", description: "Window, e.g. 1h, 6h, 1d"}
+    command: [az, monitor, activity-log, list, "--offset", "${offset}", "--status", Failed, "--query", "[].{time:eventTimestamp,op:operationName.localizedValue,resource:resourceId,status:status.value}", "-o", table]
+  - name: az_log_analytics_query
+    description: Run a KQL query against a Log Analytics workspace, e.g. "AppExceptions | where TimeGenerated > ago(1h) | take 20".
+    parameters:
+      workspace_id: {type: string, required: true, description: "Workspace (customer) id GUID"}
+      query: {type: string, required: true, description: "KQL query", pattern: "[^\\n\\r]{1,2000}"}
+      timespan: {type: string, default: "PT1H", description: "ISO-8601 duration"}
+    command: [az, monitor, log-analytics, query, "-w", "${workspace_id}", "--analytics-query", "${query}", "--timespan", "${timespan}", "-o", json]

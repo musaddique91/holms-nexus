@@ -1,0 +1,48 @@
+name: docker
+description: Read-only inspection of Docker containers on the host (status, logs, restarts, resource usage).
+binary: docker
+tools:
+  - name: docker_ps
+    description: List containers with status, image and uptime. Includes stopped containers so crash-exited services show up.
+    parameters:
+      name_filter: {type: string, description: "Only containers whose name contains this text"}
+    command:
+      - docker
+      - ps
+      - "-a"
+      - {if: name_filter, args: ["--filter", "name=${name_filter}"]}
+      - "--format"
+      - "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.RunningFor}}"
+  - name: docker_logs
+    description: Recent log lines of a container, with timestamps.
+    parameters:
+      container: {type: string, required: true, description: "Container name or id"}
+      tail: {type: integer, default: "200", description: "Number of most recent lines"}
+      since: {type: string, description: "Only logs newer than this, e.g. 30m, 2h, or an RFC3339 time"}
+    command:
+      - docker
+      - logs
+      - "--timestamps"
+      - "--tail"
+      - "${tail}"
+      - {if: since, args: ["--since", "${since}"]}
+      - "${container}"
+  - name: docker_container_state
+    description: State of a container (running, exit code, OOMKilled, restart count, health check results) and its restart policy. Does not expose environment variables.
+    parameters:
+      container: {type: string, required: true, description: "Container name or id"}
+    command:
+      - docker
+      - inspect
+      - "--format"
+      - "{{json .State}} restarts={{.RestartCount}} image={{.Config.Image}} created={{.Created}}"
+      - "${container}"
+  - name: docker_stats
+    description: One-shot CPU, memory and network usage of all running containers.
+    parameters: {}
+    command: [docker, stats, "--no-stream", "--format", "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.MemPerc}}\t{{.NetIO}}"]
+  - name: docker_events
+    description: Container lifecycle events (die, oom, restart, health_status) in a recent window.
+    parameters:
+      since: {type: string, default: "1h", description: "Window, e.g. 30m or 6h"}
+    command: [docker, events, "--since", "${since}", "--until", "0s", "--filter", "type=container"]

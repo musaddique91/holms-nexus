@@ -1,0 +1,17 @@
+node_modules/
+dist/
+target/
+.env
+*.log
+.DS_Store
+.idea/
+.vscode/
+# temporary reference copies used during the merge
+.holmes-frontend-src/
+.mcp-backend-src/
+
+# Private deployment notes and server-specific files (never published)
+internal/
+
+# Your own settings, created by scripts/setup.sh from config/holmes.example.yml
+config/holmes.yml

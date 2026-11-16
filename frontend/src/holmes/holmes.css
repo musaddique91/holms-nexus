@@ -1,0 +1,85 @@
+/*
+ * MVXHolmes pages inside the MCP design. Holmes was written against its own token and component
+ * names (surface, subtle, fg-3, card, btn-primary…); they are defined here on top of MCP's theme
+ * variables, so the Holmes pages follow MCP's look, light and dark, without restyling each page.
+ */
+@theme inline {
+  --color-canvas: var(--bg);
+  --color-surface: var(--elev);
+  --color-surface-hover: var(--elev-2);
+  --color-subtle: var(--elev-2);
+  --color-line-subtle: var(--line);
+  --color-fg-3: var(--muted);
+  --color-accent-fg: #ffffff;
+  --color-accent-hover: var(--accent-2);
+  --shadow-card: var(--shadow);
+  --shadow-card-hover: var(--shadow);
+  --shadow-pop: 0 24px 48px -16px rgb(0 0 0 / 0.35);
+  --animate-fade-in: fade-in 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-pop-in: pop-in 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-slide-up: slide-up 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-pulse-subtle: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pop-in { from { opacity: 0; transform: scale(0.97) translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes slide-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes pulse-subtle { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+
+@utility card {
+  @apply rounded-2xl border border-line bg-panel shadow-soft backdrop-blur-xl;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+@utility card-interactive {
+  @apply card hover:-translate-y-0.5 hover:border-accent/40;
+}
+@utility glass-card {
+  @apply card;
+}
+@utility btn {
+  @apply inline-flex h-9 items-center justify-center gap-1.5 rounded-xl px-3.5 text-sm font-medium tracking-tight select-none active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40;
+  transition: background-color 100ms ease, opacity 100ms ease, transform 100ms ease, border-color 100ms ease;
+}
+@utility btn-primary {
+  @apply btn text-white shadow-soft hover:brightness-110 active:brightness-95;
+  background: linear-gradient(120deg, var(--accent), var(--accent-2));
+}
+/* Light theme: MCP's solid signal red. */
+html:not(.dark) .btn-primary { background: linear-gradient(180deg, #ea1a12, #d2120c); }
+@utility btn-secondary {
+  @apply btn border border-line bg-elev text-fg shadow-soft hover:border-line-strong hover:bg-elev-2;
+}
+@utility btn-ghost {
+  @apply btn text-fg-2 hover:bg-elev-2 hover:text-fg;
+}
+@utility btn-danger {
+  @apply btn border border-err/25 bg-elev text-err hover:bg-err/10;
+}
+@utility input {
+  @apply w-full rounded-xl border border-line bg-elev px-3.5 py-2 text-sm text-fg outline-none placeholder:text-muted/80 focus:border-accent focus:ring-4 focus:ring-accent/15;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+@utility label {
+  @apply mb-1.5 block text-xs font-medium tracking-wide text-muted uppercase;
+}
+@utility chip {
+  @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-elev-2 px-2.5 py-1 text-xs font-medium text-fg-2 transition-colors;
+}
+
+/* Markdown in investigation reports and Ask answers. */
+.prose-holmes { @apply text-sm leading-relaxed text-fg-2; }
+.prose-holmes h1, .prose-holmes h2, .prose-holmes h3 { @apply mt-6 mb-2.5 font-semibold tracking-tight text-fg; }
+.prose-holmes h1 { @apply text-lg; }
+.prose-holmes h2 { @apply text-base; }
+.prose-holmes h3 { @apply text-sm; }
+.prose-holmes p { @apply my-2.5 leading-relaxed; }
+.prose-holmes ul { @apply my-2.5 list-disc space-y-1 pl-5; }
+.prose-holmes ol { @apply my-2.5 list-decimal space-y-1 pl-5; }
+.prose-holmes strong { @apply font-semibold text-fg; }
+.prose-holmes code { @apply rounded-md border border-line bg-code px-1.5 py-0.5 font-mono text-[0.82em] font-medium text-fg; }
+.prose-holmes pre { @apply my-3.5 overflow-x-auto rounded-xl border border-line bg-code p-4 font-mono text-xs; }
+.prose-holmes pre code { @apply border-0 bg-transparent p-0 font-normal; }
+.prose-holmes a { @apply font-medium text-accent underline underline-offset-2 hover:opacity-80; }
+.prose-holmes table { @apply my-3.5 w-full text-left text-xs; }
+.prose-holmes th, .prose-holmes td { @apply border-b border-line px-3 py-2; }
+.prose-holmes th { @apply bg-elev-2 font-semibold text-fg; }

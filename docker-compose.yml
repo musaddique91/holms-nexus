@@ -1,0 +1,191 @@
+# MVX Nexus: everything in one stack.
+#
+#   ./scripts/setup.sh          # writes .env with generated passwords (prints the admin login)
+#   docker compose up -d --build
+#   open http://localhost:8080
+#
+# What runs:
+#   frontend      the web UI (nginx)                         http://localhost:8080
+#   backend       API: Intelligence (AI incident response) + MCP chat
+#   postgres      application database
+#   redis         cache for MCP tool catalogs
+#   openobserve   log storage and search                     http://localhost:5080
+#   kafka         queue of error events (topic mvx.errors)
+#   vector        reads every container's logs on this host; sends all lines to OpenObserve
+#                 and ERROR/FATAL lines to Kafka, where the backend turns them into incidents
+#   docker-proxy  read-only access to the Docker engine for the docker/compose toolsets
+#
+# Your own containers on this host are monitored automatically. See README → "Monitor your apps".
+name: nexus
+
+services:
+  frontend:
+    build: ./frontend
+    image: mvx-nexus-frontend:local
+    container_name: nexus-frontend
+    environment:
+      HOLMES_BACKEND_UPSTREAM: backend:8080
+    ports:
+      - "${NEXUS_BIND:-127.0.0.1}:${NEXUS_PORT:-8080}:80"
+    depends_on: [backend]
+    networks: [nexus]
+    security_opt: ["no-new-privileges:true"]
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      args:
+        INSTALL_AWS_CLI: "${INSTALL_AWS_CLI:-true}"
+        INSTALL_AZURE_CLI: "${INSTALL_AZURE_CLI:-false}"
+    image: mvx-nexus-backend:local
+    container_name: nexus-backend
+    # Every setting in .env reaches the backend; the entries below are fixed by this stack.
+    env_file: .env
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/nexus
+      DB_USERNAME: nexus
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_HOST: redis
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      OPENOBSERVE_URL: http://openobserve:5080
+      # Docker/compose toolsets go through the read-only proxy, never the raw socket.
+      DOCKER_HOST: tcp://docker-proxy:2375
+      LOG_STRUCTURED_FORMAT: logstash
+    volumes:
+      - ./config:/app/config:ro
+      - workspaces:/data/workspaces
+      # Uncomment to let the kubernetes toolset use your kubeconfig:
+      # - ${HOME}/.kube:/home/holmes/.kube:ro
+    # Lets the backend reach services on the host (e.g. Ollama) as host.docker.internal.
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+      kafka: { condition: service_started }
+      docker-proxy: { condition: service_started }
+    networks: [nexus]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 1536m
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: nexus-postgres
+    environment:
+      POSTGRES_DB: nexus
+      POSTGRES_USER: nexus
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nexus -d nexus"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [nexus]
+    restart: unless-stopped
+
+  # Cache only: no persistence, bounded memory.
+  redis:
+    image: redis:7-alpine
+    container_name: nexus-redis
+    command: ["redis-server", "--save", "", "--appendonly", "no", "--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru"]
+    networks: [nexus]
+    mem_limit: 192m
+    restart: unless-stopped
+
+  openobserve:
+    image: openobserve/openobserve:v1.1.2
+    container_name: nexus-openobserve
+    environment:
+      ZO_ROOT_USER_EMAIL: ${OPENOBSERVE_USER}
+      ZO_ROOT_USER_PASSWORD: ${OPENOBSERVE_PASSWORD}
+      ZO_DATA_DIR: /data
+      ZO_COMPACT_DATA_RETENTION_DAYS: ${OPENOBSERVE_RETENTION_DAYS:-7}
+      ZO_TELEMETRY: "false"
+    ports:
+      - "${NEXUS_BIND:-127.0.0.1}:${OPENOBSERVE_PORT:-5080}:5080"
+    volumes:
+      - openobserve_data:/data
+    networks: [nexus]
+    mem_limit: 1536m
+    restart: unless-stopped
+
+  # Single-node Kafka (KRaft). Not published on the host.
+  kafka:
+    image: apache/kafka:4.3.2
+    container_name: nexus-kafka
+    hostname: kafka
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_NUM_PARTITIONS: 3
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_LOG_RETENTION_HOURS: ${KAFKA_RETENTION_HOURS:-72}
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      KAFKA_HEAP_OPTS: "-Xms256m -Xmx512m"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    networks: [nexus]
+    mem_limit: 1g
+    restart: unless-stopped
+
+  vector:
+    image: timberio/vector:0.61.0-alpine
+    container_name: nexus-vector
+    # Shown as "host" on every log line and incident.
+    hostname: ${VECTOR_HOSTNAME:-nexus-host}
+    command: ["--config", "/etc/vector/vector.yaml"]
+    secrets: [openobserve_user, openobserve_password]
+    volumes:
+      - ./deploy/vector/vector.yaml:/etc/vector/vector.yaml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - vector_data:/var/lib/vector
+    depends_on: [openobserve, kafka]
+    networks: [nexus]
+    mem_limit: 256m
+    restart: unless-stopped
+
+  # Read-only gateway to the Docker engine: only GET on containers/events/info is allowed
+  # (POST/DELETE are refused), so the AI can inspect containers but never start, stop,
+  # exec into or remove them, and the backend never holds the root-equivalent socket.
+  docker-proxy:
+    image: tecnativa/docker-socket-proxy:v0.4.2
+    container_name: nexus-docker-proxy
+    environment:
+      CONTAINERS: 1
+      EVENTS: 1
+      INFO: 1
+      POST: 0
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks: [nexus]
+    security_opt: ["no-new-privileges:true"]
+    restart: unless-stopped
+
+secrets:
+  openobserve_user:
+    environment: OPENOBSERVE_USER
+  openobserve_password:
+    environment: OPENOBSERVE_PASSWORD
+
+volumes:
+  postgres_data:
+  openobserve_data:
+  kafka_data:
+  vector_data:
+  workspaces:
+
+networks:
+  nexus:
+    name: nexus

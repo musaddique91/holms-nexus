@@ -1,0 +1,20 @@
+name: compose
+description: Inspect Docker Compose projects (service status and logs per project).
+binary: docker
+tools:
+  - name: compose_projects
+    description: List Docker Compose projects running on the host with their status.
+    parameters: {}
+    command: [docker, compose, ls, "-a"]
+  - name: compose_ps
+    description: Services of one Compose project with state and ports.
+    parameters:
+      project: {type: string, required: true, description: "Compose project name (see compose_projects)"}
+    command: [docker, compose, "-p", "${project}", ps, "-a"]
+  - name: compose_logs
+    description: Recent logs of one service in a Compose project.
+    parameters:
+      project: {type: string, required: true, description: "Compose project name"}
+      service: {type: string, required: true, description: "Service name inside the project"}
+      tail: {type: integer, default: "200", description: "Lines per container"}
+    command: [docker, compose, "-p", "${project}", logs, "--no-color", "--timestamps", "--tail", "${tail}", "${service}"]

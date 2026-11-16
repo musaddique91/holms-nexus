@@ -1,0 +1,70 @@
+name: aws
+description: Read-only AWS inspection via the AWS CLI v2 (CloudWatch logs and alarms, ECS, EC2, RDS, load balancers).
+binary: aws
+tools:
+  - name: aws_logs_tail
+    description: Recent CloudWatch Logs events from a log group, optionally filtered.
+    parameters:
+      log_group: {type: string, required: true, description: "Log group name, e.g. /ecs/water-backend"}
+      since: {type: string, default: "30m", description: "Window, e.g. 15m, 2h"}
+      filter: {type: string, description: "CloudWatch filter pattern, e.g. ERROR", pattern: "[A-Za-z0-9_.:\" ?*-]{1,200}"}
+    command:
+      - aws
+      - logs
+      - tail
+      - "${log_group}"
+      - "--since"
+      - "${since}"
+      - "--format"
+      - short
+      - {if: filter, args: ["--filter-pattern", "${filter}"]}
+  - name: aws_logs_groups
+    description: List CloudWatch log groups by name prefix.
+    parameters:
+      prefix: {type: string, description: "Name prefix, e.g. /ecs/"}
+    command:
+      - aws
+      - logs
+      - describe-log-groups
+      - {if: prefix, args: ["--log-group-name-prefix", "${prefix}"]}
+      - "--query"
+      - "logGroups[].logGroupName"
+      - "--output"
+      - text
+  - name: aws_cloudwatch_alarms
+    description: CloudWatch alarms currently in ALARM state.
+    parameters: {}
+    command: [aws, cloudwatch, describe-alarms, "--state-value", ALARM, "--output", json, "--query", "MetricAlarms[].{name:AlarmName,reason:StateReason,metric:MetricName,ns:Namespace}"]
+  - name: aws_ecs_services
+    description: Services of an ECS cluster with desired/running counts and recent deployment events.
+    parameters:
+      cluster: {type: string, required: true, description: "ECS cluster name or ARN"}
+      service: {type: string, required: true, description: "ECS service name"}
+    command: [aws, ecs, describe-services, "--cluster", "${cluster}", "--services", "${service}", "--output", json, "--query", "services[].{status:status,desired:desiredCount,running:runningCount,events:events[:10].message,deployments:deployments[].{status:status,rollout:rolloutState,task:taskDefinition}}"]
+  - name: aws_ecs_stopped_tasks
+    description: Recently stopped tasks of an ECS service with their stop reasons (OOM, failed health checks, crashes).
+    parameters:
+      cluster: {type: string, required: true, description: "ECS cluster name"}
+      service: {type: string, required: true, description: "ECS service name"}
+    command: [aws, ecs, list-tasks, "--cluster", "${cluster}", "--service-name", "${service}", "--desired-status", STOPPED, "--output", json]
+  - name: aws_ec2_instance_status
+    description: Status checks of EC2 instances (impaired hosts, scheduled events).
+    parameters:
+      instance_id: {type: string, description: "Instance id; omit for all instances"}
+    command:
+      - aws
+      - ec2
+      - describe-instance-status
+      - "--include-all-instances"
+      - {if: instance_id, args: ["--instance-ids", "${instance_id}"]}
+      - "--output"
+      - json
+  - name: aws_rds_instances
+    description: RDS instances with status, class and storage.
+    parameters: {}
+    command: [aws, rds, describe-db-instances, "--output", json, "--query", "DBInstances[].{id:DBInstanceIdentifier,status:DBInstanceStatus,class:DBInstanceClass,engine:Engine,storage:AllocatedStorage}"]
+  - name: aws_target_health
+    description: Health of targets behind a load balancer target group.
+    parameters:
+      target_group_arn: {type: string, required: true, description: "Target group ARN"}
+    command: [aws, elbv2, describe-target-health, "--target-group-arn", "${target_group_arn}", "--output", json]

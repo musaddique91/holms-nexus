@@ -1,0 +1,86 @@
+# Log agent for ANOTHER VM (prod boxes, client servers) that cannot reach Kafka directly.
+# Kafka is never exposed on the internet; errors go to MVX Nexus over HTTPS instead, where
+# they are published onto the same Kafka topic.
+#
+#   docker containers ──► normalise ──┬──► OpenObserve (HTTPS)
+#                                     └──► MVX Nexus /api/ingest/events (HTTPS + token)
+# EDIT the two URLs below (your OpenObserve and MVX Nexus public HTTPS hosts) and the host name.
+# Credentials come from Docker secrets mounted at /run/secrets (see docker-compose.yml).
+secret:
+  files:
+    type: directory
+    path: /run/secrets
+
+sources:
+  docker:
+    type: docker_logs
+    exclude_containers: ["vector"]
+    multiline:
+      mode: continue_through
+      start_pattern: '^\S'
+      condition_pattern: '^(\s+at\s|\s+\.\.\.\s\d+|Caused by:|\s|[\w$.]+(Exception|Error|Throwable)\b)'
+      timeout_ms: 1000
+
+transforms:
+  normalize:
+    type: remap
+    inputs: [docker]
+    source: |
+      .service = .container_name
+      .compose_project = .label."com.docker.compose.project"
+      .environment = .label."holmes.environment"
+      if exists(.label."holmes.service") { .service = .label."holmes.service" }
+      del(.label)
+
+      parsed, err = parse_json(.message)
+      if err == null && is_object(parsed) {
+        . = merge(., object!(parsed))
+        if exists(."log.level") { .level = ."log.level" }
+        if exists(."error.stack_trace") { .stack_trace = ."error.stack_trace" }
+      }
+
+      if !exists(.level) || is_null(.level) {
+        first_line = string(split(to_string(.message) ?? "", "\n")[0]) ?? ""
+        m, merr = parse_regex(first_line, r'\b(?P<lvl>FATAL|ERROR|WARN|INFO|DEBUG|TRACE)\b')
+        .level = if merr == null { m.lvl } else { "INFO" }
+      }
+      .level = upcase(to_string(.level) ?? "INFO")
+
+  errors:
+    type: filter
+    inputs: [normalize]
+    condition: '.level == "ERROR" || .level == "FATAL"'
+
+sinks:
+  openobserve:
+    type: http
+    inputs: [normalize]
+    uri: "https://logs.example.com/api/default/mvx_apps/_json"
+    method: post
+    auth:
+      strategy: basic
+      user: "SECRET[files.openobserve_user]"
+      password: "SECRET[files.openobserve_password]"
+    compression: gzip
+    encoding:
+      codec: json
+      timestamp_format: rfc3339
+    healthcheck:
+      enabled: false
+
+  holmes_errors:
+    type: http
+    inputs: [errors]
+    uri: "https://nexus.example.com/api/ingest/events"
+    method: post
+    request:
+      headers:
+        X-Holmes-Token: "SECRET[files.holmes_webhook_token]"
+    encoding:
+      codec: json
+      timestamp_format: rfc3339
+    batch:
+      max_events: 100
+      timeout_secs: 5
+    healthcheck:
+      enabled: false

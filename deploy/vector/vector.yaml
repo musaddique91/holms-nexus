@@ -1,0 +1,87 @@
+# Log agent for the MVX Nexus stack.
+#
+#   docker containers ──► normalise ──┬──► OpenObserve  (every log line, for search and context)
+#                                     └──► Kafka mvx.errors (ERROR/FATAL only) ──► Intelligence
+#
+# Works with plain-text logs, and best with JSON logs (one object per line with a "level"
+# field; Spring Boot: LOGGING_STRUCTURED_FORMAT_CONSOLE=logstash).
+# Credentials come from Docker secrets mounted at /run/secrets (see docker-compose.yml),
+# so no password is written into this file.
+secret:
+  files:
+    type: directory
+    path: /run/secrets
+
+sources:
+  docker:
+    type: docker_logs
+    # Every container on this host except MVX Nexus's own (their names start with "nexus-").
+    # To watch only some apps instead, replace exclude_containers with
+    #   include_containers: ["orders-", "payments-"]     # name prefixes
+    # Vector only reads lines written after it starts: there is no backfill.
+    exclude_containers:
+      - "nexus-"
+    multiline:
+      mode: continue_through
+      start_pattern: '^\S'
+      condition_pattern: '^(\s+at\s|\s+\.\.\.\s\d+|Caused by:|\s|[\w$.]+(Exception|Error|Throwable)\b)'
+      timeout_ms: 1000
+
+transforms:
+  normalize:
+    type: remap
+    inputs: [docker]
+    source: |
+      .service = .container_name
+      .compose_project = .label."com.docker.compose.project"
+      .environment = .label."holmes.environment"
+      if exists(.label."holmes.service") { .service = .label."holmes.service" }
+      del(.label)
+
+      # Spring Boot structured logs (logstash/ECS) arrive as one JSON object per line.
+      parsed, err = parse_json(.message)
+      if err == null && is_object(parsed) {
+        . = merge(., object!(parsed))
+        if exists(."log.level") { .level = ."log.level" }
+        if exists(."error.stack_trace") { .stack_trace = ."error.stack_trace" }
+      }
+
+      if !exists(.level) || is_null(.level) {
+        first_line = string(split(to_string(.message) ?? "", "\n")[0]) ?? ""
+        m, merr = parse_regex(first_line, r'\b(?P<lvl>FATAL|ERROR|WARN|INFO|DEBUG|TRACE)\b')
+        .level = if merr == null { m.lvl } else { "INFO" }
+      }
+      .level = upcase(to_string(.level) ?? "INFO")
+
+  errors:
+    type: filter
+    inputs: [normalize]
+    condition: '.level == "ERROR" || .level == "FATAL"'
+
+sinks:
+  openobserve:
+    type: http
+    inputs: [normalize]
+    uri: "http://openobserve:5080/api/default/mvx_apps/_json"
+    method: post
+    auth:
+      strategy: basic
+      user: "SECRET[files.openobserve_user]"
+      password: "SECRET[files.openobserve_password]"
+    compression: gzip
+    encoding:
+      codec: json
+      timestamp_format: rfc3339
+    healthcheck:
+      enabled: false
+
+  kafka_errors:
+    type: kafka
+    inputs: [errors]
+    bootstrap_servers: "kafka:9092"
+    topic: "mvx.errors"
+    key_field: ".service"
+    encoding:
+      codec: json
+    healthcheck:
+      enabled: false

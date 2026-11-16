@@ -1,0 +1,215 @@
+# MVX Nexus configuration (MVXHolmes + MCP). Every value can be overridden by an environment variable
+# (relaxed binding: holmes.llm.api-key <- HOLMES_LLM_API_KEY). Lists such as databases,
+# Kafka clusters or extra services are easiest to provide in the optional file below.
+spring:
+  application:
+    name: mvx-nexus
+  config:
+    import: optional:file:${HOLMES_CONFIG_FILE:./config/holmes.yml}
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/mvx_holmes}
+    username: ${DB_USERNAME:holmes}
+    password: ${DB_PASSWORD:holmes}
+    hikari:
+      maximum-pool-size: ${DB_POOL_SIZE:10}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+  # MCP app: cached MCP tool catalogs.
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: ${REDIS_DB:0}
+  mvc:
+    async:
+      # MCP chat answers stream over SSE and can run for minutes.
+      request-timeout: 30m
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      auto-offset-reset: earliest
+    listener:
+      concurrency: ${KAFKA_CONSUMER_CONCURRENCY:2}
+  mail:
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail.smtp.auth: ${MAIL_SMTP_AUTH:true}
+      mail.smtp.starttls.enable: ${MAIL_STARTTLS:true}
+      mail.smtp.connectiontimeout: 10000
+      mail.smtp.timeout: 15000
+
+server:
+  port: ${PORT:8080}
+  shutdown: graceful
+  # Behind nginx: take the client address from X-Forwarded-For (trusted from private
+  # networks only), so the login lockout is per client rather than per proxy.
+  forward-headers-strategy: native
+
+management:
+  health:
+    # Notification channels are optional; an unreachable SMTP server must not mark Holmes DOWN.
+    mail:
+      enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+logging:
+  structured:
+    format:
+      console: ${LOG_STRUCTURED_FORMAT:}
+
+holmes:
+  dashboard-url: ${HOLMES_DASHBOARD_URL:http://localhost:5173}
+  workspace-dir: ${HOLMES_WORKSPACE_DIR:${java.io.tmpdir}/holmes-workspaces}
+
+  security:
+    admin-username: ${HOLMES_ADMIN_USERNAME:admin}
+    admin-password: ${HOLMES_ADMIN_PASSWORD:}
+    jwt-secret: ${HOLMES_JWT_SECRET:}
+    settings-key: ${HOLMES_SETTINGS_KEY:}
+    cors-origins: ${HOLMES_CORS_ORIGINS:http://localhost:5173}
+
+  llm:
+    provider: ${HOLMES_LLM_PROVIDER:anthropic}
+    model: ${HOLMES_LLM_MODEL:claude-sonnet-5-5}
+    fix-model: ${HOLMES_LLM_FIX_MODEL:}
+    api-key: ${HOLMES_LLM_API_KEY:}
+    base-url: ${HOLMES_LLM_BASE_URL:}
+    azure-deployment: ${HOLMES_LLM_AZURE_DEPLOYMENT:}
+    max-tokens: ${HOLMES_LLM_MAX_TOKENS:4096}
+    max-tokens-param: ${HOLMES_LLM_MAX_TOKENS_PARAM:max_tokens}
+
+  ingestion:
+    webhook-token: ${HOLMES_WEBHOOK_TOKEN:}
+    kafka:
+      enabled: ${HOLMES_KAFKA_ENABLED:true}
+      topic: ${HOLMES_KAFKA_TOPIC:mvx.errors}
+      group-id: ${HOLMES_KAFKA_GROUP:mvx-holmes}
+      replicas: ${HOLMES_KAFKA_REPLICAS:1}
+    poller:
+      enabled: ${HOLMES_POLLER_ENABLED:false}
+      interval: ${HOLMES_POLLER_INTERVAL:30s}
+      stream: ${HOLMES_POLLER_STREAM:mvx_apps}
+      filter: "level IN ('ERROR','FATAL')"
+    ignore-patterns:
+      # Client disconnects and similar noise that no code change can fix.
+      - "Broken pipe"
+      - "ClientAbortException"
+      - "AsyncRequestNotUsableException"
+
+  investigation:
+    enabled: ${HOLMES_INVESTIGATION_ENABLED:true}
+    max-steps: ${HOLMES_MAX_STEPS:15}
+    concurrency: ${HOLMES_CONCURRENCY:2}
+    max-per-hour: ${HOLMES_MAX_PER_HOUR:30}
+
+  remediation:
+    enabled: ${HOLMES_REMEDIATION_ENABLED:true}
+    draft-pull-requests: ${HOLMES_DRAFT_PRS:true}
+    min-confidence: ${HOLMES_FIX_MIN_CONFIDENCE:MEDIUM}
+
+  git:
+    author-name: ${HOLMES_GIT_AUTHOR_NAME:mvx-nexus}
+    author-email: ${HOLMES_GIT_AUTHOR_EMAIL:mvx-nexus@example.com}
+    github:
+      token: ${GITHUB_TOKEN:}
+      api-url: ${GITHUB_API_URL:https://api.github.com}
+    gitlab:
+      token: ${GITLAB_TOKEN:}
+      url: ${GITLAB_URL:https://gitlab.com}
+
+  notifications:
+    slack:
+      enabled: ${SLACK_ENABLED:false}
+      webhook-url: ${SLACK_WEBHOOK_URL:}
+      bot-token: ${SLACK_BOT_TOKEN:}
+      default-channel: ${SLACK_CHANNEL:}
+    email:
+      enabled: ${EMAIL_ENABLED:false}
+      from: ${EMAIL_FROM:MVX Nexus <alerts@example.com>}
+      to: ${EMAIL_TO:}
+    telegram:
+      enabled: ${TELEGRAM_ENABLED:false}
+      bot-token: ${TELEGRAM_BOT_TOKEN:}
+      chat-id: ${TELEGRAM_CHAT_ID:}
+
+  openobserve:
+    url: ${OPENOBSERVE_URL:http://openobserve:5080}
+    organization: ${OPENOBSERVE_ORG:default}
+    username: ${OPENOBSERVE_USER:}
+    password: ${OPENOBSERVE_PASSWORD:}
+
+  toolsets:
+    openobserve: true
+    custom-dir: ${HOLMES_CUSTOM_TOOLSETS_DIR:}
+    cli:
+      kubernetes:
+        enabled: ${HOLMES_KUBERNETES_ENABLED:false}
+      docker:
+        enabled: ${HOLMES_DOCKER_ENABLED:false}
+      compose:
+        enabled: ${HOLMES_COMPOSE_ENABLED:false}
+      aws:
+        enabled: ${HOLMES_AWS_ENABLED:false}
+      azure:
+        enabled: ${HOLMES_AZURE_ENABLED:false}
+    grafana:
+      enabled: ${GRAFANA_ENABLED:false}
+      url: ${GRAFANA_URL:http://grafana:3000}
+      api-key: ${GRAFANA_API_KEY:}
+    prometheus:
+      enabled: ${PROMETHEUS_ENABLED:false}
+      url: ${PROMETHEUS_URL:http://prometheus:9090}
+      alertmanager-url: ${ALERTMANAGER_URL:}
+      bearer-token: ${PROMETHEUS_BEARER_TOKEN:}
+    loki:
+      enabled: ${LOKI_ENABLED:false}
+      url: ${LOKI_URL:http://loki:3100}
+      tenant-id: ${LOKI_TENANT_ID:}
+      bearer-token: ${LOKI_BEARER_TOKEN:}
+    opentelemetry:
+      enabled: ${OTEL_ENABLED:false}
+      url: ${OTEL_URL:http://openobserve:5080}
+      traces-url: ${OTEL_TRACES_URL:}
+      bearer-token: ${OTEL_BEARER_TOKEN:}
+
+  # Created on first boot only; edit them afterwards on the Services page.
+  # Aliases are the container names each app runs under per environment, so
+  # errors from dev/staging/prod containers all land on the right service.
+  # None by default. Add services in the UI (Services) or list them under
+  # holmes.seed-services in config/holmes.yml (see config/holmes.example.yml).
+  seed-services: []
+
+# MCP app (chat with your data through MCP servers).
+nexus:
+  # Unused since the merge (CORS is set once by the security config); kept for the record type.
+  cors-origins: ${CORS_ORIGINS:http://localhost:5173}
+  redis-prefix: "nexus:"
+  tools-cache-ttl: 30m
+  history-limit: 40
+  bootstrap:
+    # Optional: providers created on first start when these are set (otherwise add them under Models).
+    anthropic-api-key: ${ANTHROPIC_API_KEY:}
+    openai-api-key: ${OPENAI_API_KEY:}
+    ollama-base-url: ${OLLAMA_BASE_URL:}

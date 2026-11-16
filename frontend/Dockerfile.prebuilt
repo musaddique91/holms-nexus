@@ -1,0 +1,9 @@
+# MVX Nexus frontend. `npm ci && npm run build` runs first (Jenkins or the deploy script),
+# then this image serves dist/ and proxies /api to the backend.
+FROM nginx:1.29-alpine
+COPY dist /usr/share/nginx/html
+COPY nginx/default.conf.template /etc/nginx/templates/default.conf.template
+# The official image runs envsubst over /etc/nginx/templates at start-up, only for variables
+# that are defined, so nginx's own $variables are left alone.
+ENV HOLMES_BACKEND_UPSTREAM=mvx-holmes-backend:8080
+EXPOSE 80

@@ -1,0 +1,4 @@
+# Only the built SPA and the nginx config enter the image.
+*
+!dist
+!nginx

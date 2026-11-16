@@ -1,0 +1,31 @@
+# Vector log agent for a REMOTE VM. On the machine that runs MVX Nexus itself you do not need this:
+# the main docker-compose.yml already includes an agent (deploy/vector/vector.yaml).
+#
+#   1. edit the two URLs in vector-remote.yaml
+#   2. cp .env.example .env   # fill in the secrets
+#   docker compose up -d
+services:
+  vector:
+    image: timberio/vector:0.61.0-alpine
+    container_name: vector
+    # Shown as "host" on every log line and incident.
+    hostname: ${VECTOR_HOSTNAME:-remote-vm}
+    command: ["--config", "/etc/vector/vector.yaml"]
+    secrets: [openobserve_user, openobserve_password, holmes_webhook_token]
+    volumes:
+      - ./vector-remote.yaml:/etc/vector/vector.yaml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - vector_data:/var/lib/vector
+    mem_limit: 256m
+    restart: always
+
+secrets:
+  openobserve_user:
+    environment: OPENOBSERVE_USER
+  openobserve_password:
+    environment: OPENOBSERVE_PASSWORD
+  holmes_webhook_token:
+    environment: HOLMES_WEBHOOK_TOKEN
+
+volumes:
+  vector_data:

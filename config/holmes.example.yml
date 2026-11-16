@@ -1,0 +1,61 @@
+# Optional extra configuration, mounted into the backend at /app/config/holmes.yml.
+# Use it for list-shaped settings that are awkward as environment variables.
+# ./scripts/setup.sh copies this file to config/holmes.yml; uncomment what you need and run
+#   docker compose restart backend
+holmes:
+  # Services created on the very first start (you can also add them in the UI: Services).
+  # A service links the names seen in logs (container names) to a git repository, so the AI
+  # can read the code and open fix pull requests.
+  # seed-services:
+  #   - name: orders-api
+  #     display-name: Orders API
+  #     aliases: [orders-backend, orders-backend-staging]
+  #     repo-url: https://github.com/your-org/orders-api.git
+  #     code-path: backend          # folder of this service inside the repo (optional)
+
+  toolsets:
+    # Prefer READ-ONLY database users: only SELECTs are run, but defence in depth matters.
+    # databases:
+    #   - name: orders
+    #     type: postgres            # postgres | mysql | sqlserver
+    #     url: jdbc:postgresql://db.example.com:5432/orders
+    #     username: nexus_ro
+    #     password: "..."
+    #   - name: legacy-erp
+    #     type: mysql
+    #     url: jdbc:mysql://host.docker.internal:3306/erp
+    #     username: nexus_ro
+    #     password: "..."
+    #   - name: retail
+    #     type: sqlserver
+    #     url: jdbc:sqlserver://sql.example.com:1433;databaseName=retail;encrypt=true;trustServerCertificate=true
+    #     username: nexus_ro
+    #     password: "..."
+
+    # kafka:
+    #   - name: main
+    #     bootstrap-servers: kafka.example.com:9092
+
+    # mongo:
+    #   - name: main
+    #     uri: mongodb://nexus_ro:...@mongo.example.com:27017/?authSource=admin
+    #     database: app
+
+    # rabbitmq:
+    #   - name: main
+    #     url: http://rabbitmq.example.com:15672
+    #     username: nexus
+    #     password: "..."
+
+    # prometheus:
+    #   enabled: true
+    #   url: http://prometheus:9090
+    #   alertmanager-url: http://alertmanager:9093
+    #   bearer-token: ""
+
+  # Errors whose message matches any of these regexes never open an incident.
+  ingestion:
+    ignore-patterns:
+      - "Broken pipe"
+      - "ClientAbortException"
+      - "AsyncRequestNotUsableException"

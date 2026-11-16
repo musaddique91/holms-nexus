@@ -1,0 +1,66 @@
+name: kubernetes
+description: Read-only Kubernetes inspection via kubectl (pods, events, logs, rollouts).
+binary: kubectl
+tools:
+  - name: kubectl_get
+    description: List Kubernetes resources of a kind (pods, deployments, services, ingresses, nodes, jobs, hpa...). Omit namespace to list across all namespaces.
+    parameters:
+      kind: {type: string, required: true, description: "Resource kind, e.g. pods, deployments, statefulsets, nodes (secrets are not allowed)", pattern: "(?!(?i:secrets?|sealedsecrets?)$)[A-Za-z0-9][A-Za-z0-9._-]{0,62}"}
+      namespace: {type: string, description: "Namespace; omit for all namespaces"}
+      selector: {type: string, description: "Label selector, e.g. app=water-backend"}
+    command:
+      - kubectl
+      - get
+      - "${kind}"
+      - {if: namespace, args: ["-n", "${namespace}"]}
+      - {unless: namespace, args: ["-A"]}
+      - {if: selector, args: ["-l", "${selector}"]}
+      - "-o"
+      - wide
+  - name: kubectl_describe
+    description: Describe one Kubernetes resource, including its recent events (crash loops, OOMKilled, failed probes, scheduling problems).
+    parameters:
+      kind: {type: string, required: true, description: "Resource kind, e.g. pod, deployment (secrets are not allowed)", pattern: "(?!(?i:secrets?|sealedsecrets?)$)[A-Za-z0-9][A-Za-z0-9._-]{0,62}"}
+      name: {type: string, required: true, description: "Resource name"}
+      namespace: {type: string, required: true, description: "Namespace"}
+    command: [kubectl, describe, "${kind}", "${name}", "-n", "${namespace}"]
+  - name: kubectl_logs
+    description: Fetch logs of a pod. Set previous=true to read the log of the last crashed container.
+    parameters:
+      pod: {type: string, required: true, description: "Pod name"}
+      namespace: {type: string, required: true, description: "Namespace"}
+      container: {type: string, description: "Container name for multi-container pods"}
+      previous: {type: boolean, description: "Logs of the previous (crashed) container instance"}
+      tail: {type: integer, default: "200", description: "Number of most recent lines"}
+    command:
+      - kubectl
+      - logs
+      - "${pod}"
+      - "-n"
+      - "${namespace}"
+      - {if: container, args: ["-c", "${container}"]}
+      - {if: previous, args: ["--previous"]}
+      - "--tail=${tail}"
+      - "--timestamps"
+  - name: kubectl_events
+    description: Recent cluster events sorted by time, optionally limited to one namespace. Good first step for scheduling, image pull and probe failures.
+    parameters:
+      namespace: {type: string, description: "Namespace; omit for all namespaces"}
+    command:
+      - kubectl
+      - get
+      - events
+      - {if: namespace, args: ["-n", "${namespace}"]}
+      - {unless: namespace, args: ["-A"]}
+      - "--sort-by=.lastTimestamp"
+  - name: kubectl_top_pods
+    description: CPU and memory usage per pod (needs metrics-server).
+    parameters:
+      namespace: {type: string, required: true, description: "Namespace"}
+    command: [kubectl, top, pods, "-n", "${namespace}"]
+  - name: kubectl_rollout_history
+    description: Revision history of a deployment, to correlate an error with a recent release.
+    parameters:
+      deployment: {type: string, required: true, description: "Deployment name"}
+      namespace: {type: string, required: true, description: "Namespace"}
+    command: [kubectl, rollout, history, "deployment/${deployment}", "-n", "${namespace}"]
