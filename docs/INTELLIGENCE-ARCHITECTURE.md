@@ -6,7 +6,7 @@ the root cause with read-only tools, proposes or opens a fix PR, and notifies th
 ```
  app containers ──logs──► Vector ──all lines──► OpenObserve (search, retention)
                              │                        ▲
-                             └─ERROR/FATAL──► Kafka mvx.errors          │ log search tool
+                             └─ERROR/FATAL──► Kafka holms.errors          │ log search tool
                                                  │                      │
  remote VMs (Vector) ──HTTPS──► /api/ingest ─────┤                      │
  OpenObserve alert / poller ────────────────────►┤                      │

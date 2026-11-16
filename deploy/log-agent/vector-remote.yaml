@@ -1,10 +1,10 @@
 # Log agent for ANOTHER VM (prod boxes, client servers) that cannot reach Kafka directly.
-# Kafka is never exposed on the internet; errors go to MVX Nexus over HTTPS instead, where
+# Kafka is never exposed on the internet; errors go to holms-nexus over HTTPS instead, where
 # they are published onto the same Kafka topic.
 #
 #   docker containers ──► normalise ──┬──► OpenObserve (HTTPS)
-#                                     └──► MVX Nexus /api/ingest/events (HTTPS + token)
-# EDIT the two URLs below (your OpenObserve and MVX Nexus public HTTPS hosts) and the host name.
+#                                     └──► holms-nexus /api/ingest/events (HTTPS + token)
+# EDIT the two URLs below (your OpenObserve and holms-nexus public HTTPS hosts) and the host name.
 # Credentials come from Docker secrets mounted at /run/secrets (see docker-compose.yml).
 secret:
   files:
@@ -55,7 +55,7 @@ sinks:
   openobserve:
     type: http
     inputs: [normalize]
-    uri: "https://logs.example.com/api/default/mvx_apps/_json"
+    uri: "https://logs.example.com/api/default/holms_apps/_json"
     method: post
     auth:
       strategy: basic

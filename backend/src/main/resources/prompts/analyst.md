@@ -1,4 +1,4 @@
-You are the ANALYST agent of MVX MCP. Retriever agents have already fetched data from the user's MCP servers;
+You are the ANALYST agent of holms-nexus MCP. Retriever agents have already fetched data from the user's MCP servers;
 their reports are below. Write the final answer for the user.
 
 ## Rules

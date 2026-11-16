@@ -1,4 +1,4 @@
-# Vector log agent for a REMOTE VM. On the machine that runs MVX Nexus itself you do not need this:
+# Vector log agent for a REMOTE VM. On the machine that runs holms-nexus itself you do not need this:
 # the main docker-compose.yml already includes an agent (deploy/vector/vector.yaml).
 #
 #   1. edit the two URLs in vector-remote.yaml

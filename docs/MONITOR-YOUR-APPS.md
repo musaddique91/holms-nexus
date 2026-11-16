@@ -1,21 +1,21 @@
 # Monitor your apps
 
-MVX Nexus turns error log lines into incidents. There are four ways to get errors in. Use
+holms-nexus turns error log lines into incidents. There are four ways to get errors in. Use
 whichever fits; they can be combined.
 
 | Your apps run… | Use | Setup |
 |---|---|---|
-| in Docker on the same machine as MVX Nexus | the bundled Vector agent | nothing: it is automatic |
+| in Docker on the same machine as holms-nexus | the bundled Vector agent | nothing: it is automatic |
 | in Docker on other machines | the remote log agent | `deploy/log-agent/` |
 | anywhere, with Prometheus Alertmanager | the Alertmanager webhook | one receiver in Alertmanager |
-| anywhere, with OpenTelemetry | the OTLP endpoints | point your collector at MVX Nexus |
+| anywhere, with OpenTelemetry | the OTLP endpoints | point your collector at holms-nexus |
 
 Every webhook needs the shared secret from `.env` (`HOLMES_WEBHOOK_TOKEN`) in the
 `X-Holmes-Token` header. Alertmanager and OTLP may send it as `Authorization: Bearer <token>` instead.
 
 ## 1. Same machine: automatic
 
-The `vector` container reads the logs of every container on the host, except MVX Nexus's own.
+The `vector` container reads the logs of every container on the host, except holms-nexus's own.
 All lines go to OpenObserve (searchable, and used by the AI as context). Lines at `ERROR` or
 `FATAL` level also go to Kafka and become incidents.
 
@@ -30,7 +30,7 @@ On each remote machine:
 ```bash
 cd deploy/log-agent
 cp .env.example .env        # OpenObserve user/password and HOLMES_WEBHOOK_TOKEN
-# edit the two URLs in vector-remote.yaml: your OpenObserve and MVX Nexus HTTPS addresses
+# edit the two URLs in vector-remote.yaml: your OpenObserve and holms-nexus HTTPS addresses
 docker compose up -d
 ```
 
@@ -41,7 +41,7 @@ Kafka is never exposed: the agent posts errors to `https://<your-nexus>/api/inge
 ```yaml
 # alertmanager.yml
 receivers:
-  - name: mvx-nexus
+  - name: holms-nexus
     webhook_configs:
       - url: https://<your-nexus>/api/ingest/alertmanager
         http_config:

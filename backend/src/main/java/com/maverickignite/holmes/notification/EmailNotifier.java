@@ -122,7 +122,7 @@ class EmailNotifier implements Notifier {
     }
     sb.append("<p><a href=\"").append(h(m.dashboardLink()))
         .append("\" style=\"display:inline-block;padding:8px 14px;background:#1f6feb;color:#fff;border-radius:6px;text-decoration:none\">Open incident</a></p>");
-    sb.append("<p style=\"color:#888;font-size:12px\">Sent by mvx-holmes</p></div>");
+    sb.append("<p style=\"color:#888;font-size:12px\">Sent by holms-nexus</p></div>");
     return sb.toString();
   }
 

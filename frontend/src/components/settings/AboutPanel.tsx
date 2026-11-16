@@ -22,12 +22,12 @@ const SHORTCUTS: [string[], string][] = [
 export function AboutPanel() {
   return (
     <div>
-      <PanelHeader title="About MVX MCP" description="A workspace for talking to your data through the Model Context Protocol." />
+      <PanelHeader title="About MCP" description="A workspace for talking to your data through the Model Context Protocol." />
       <div className="max-w-3xl space-y-8 p-6">
         <div className="flex items-center gap-4 rounded-2xl border border-line bg-gradient-to-br from-accent-soft to-transparent p-5">
           <Logo size={48} />
           <div>
-            <div className="text-lg font-semibold">MVX MCP <span className="text-sm font-normal text-muted">v0.1.0</span></div>
+            <div className="text-lg font-semibold">MCP <span className="text-sm font-normal text-muted">v0.1.0</span></div>
             <div className="text-sm text-muted">React · Spring Boot 4 · Spring AI 2 · MCP Java SDK · PostgreSQL · Redis</div>
           </div>
         </div>

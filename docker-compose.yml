@@ -1,4 +1,4 @@
-# MVX Nexus: everything in one stack.
+# holms-nexus: everything in one stack.
 #
 #   ./scripts/setup.sh          # writes .env with generated passwords (prints the admin login)
 #   docker compose up -d --build
@@ -10,25 +10,25 @@
 #   postgres      application database
 #   redis         cache for MCP tool catalogs
 #   openobserve   log storage and search                     http://localhost:5080
-#   kafka         queue of error events (topic mvx.errors)
+#   kafka         queue of error events (topic holms.errors)
 #   vector        reads every container's logs on this host; sends all lines to OpenObserve
 #                 and ERROR/FATAL lines to Kafka, where the backend turns them into incidents
 #   docker-proxy  read-only access to the Docker engine for the docker/compose toolsets
 #
 # Your own containers on this host are monitored automatically. See README → "Monitor your apps".
-name: nexus
+name: holms-nexus
 
 services:
   frontend:
     build: ./frontend
-    image: mvx-nexus-frontend:local
-    container_name: nexus-frontend
+    image: holms-nexus-frontend:local
+    container_name: holms-nexus-frontend
     environment:
       HOLMES_BACKEND_UPSTREAM: backend:8080
     ports:
       - "${NEXUS_BIND:-127.0.0.1}:${NEXUS_PORT:-8080}:80"
     depends_on: [backend]
-    networks: [nexus]
+    networks: [holms-nexus]
     security_opt: ["no-new-privileges:true"]
     restart: unless-stopped
 
@@ -38,8 +38,8 @@ services:
       args:
         INSTALL_AWS_CLI: "${INSTALL_AWS_CLI:-true}"
         INSTALL_AZURE_CLI: "${INSTALL_AZURE_CLI:-false}"
-    image: mvx-nexus-backend:local
-    container_name: nexus-backend
+    image: holms-nexus-backend:local
+    container_name: holms-nexus-backend
     # Every setting in .env reaches the backend; the entries below are fixed by this stack.
     env_file: .env
     environment:
@@ -64,14 +64,14 @@ services:
       redis: { condition: service_started }
       kafka: { condition: service_started }
       docker-proxy: { condition: service_started }
-    networks: [nexus]
+    networks: [holms-nexus]
     security_opt: ["no-new-privileges:true"]
     mem_limit: 1536m
     restart: unless-stopped
 
   postgres:
     image: postgres:17-alpine
-    container_name: nexus-postgres
+    container_name: holms-nexus-postgres
     environment:
       POSTGRES_DB: nexus
       POSTGRES_USER: nexus
@@ -83,21 +83,21 @@ services:
       interval: 5s
       timeout: 3s
       retries: 20
-    networks: [nexus]
+    networks: [holms-nexus]
     restart: unless-stopped
 
   # Cache only: no persistence, bounded memory.
   redis:
     image: redis:7-alpine
-    container_name: nexus-redis
+    container_name: holms-nexus-redis
     command: ["redis-server", "--save", "", "--appendonly", "no", "--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru"]
-    networks: [nexus]
+    networks: [holms-nexus]
     mem_limit: 192m
     restart: unless-stopped
 
   openobserve:
     image: openobserve/openobserve:v1.1.2
-    container_name: nexus-openobserve
+    container_name: holms-nexus-openobserve
     environment:
       ZO_ROOT_USER_EMAIL: ${OPENOBSERVE_USER}
       ZO_ROOT_USER_PASSWORD: ${OPENOBSERVE_PASSWORD}
@@ -108,14 +108,14 @@ services:
       - "${NEXUS_BIND:-127.0.0.1}:${OPENOBSERVE_PORT:-5080}:5080"
     volumes:
       - openobserve_data:/data
-    networks: [nexus]
+    networks: [holms-nexus]
     mem_limit: 1536m
     restart: unless-stopped
 
   # Single-node Kafka (KRaft). Not published on the host.
   kafka:
     image: apache/kafka:4.3.2
-    container_name: nexus-kafka
+    container_name: holms-nexus-kafka
     hostname: kafka
     environment:
       KAFKA_NODE_ID: 1
@@ -136,15 +136,15 @@ services:
       KAFKA_HEAP_OPTS: "-Xms256m -Xmx512m"
     volumes:
       - kafka_data:/var/lib/kafka/data
-    networks: [nexus]
+    networks: [holms-nexus]
     mem_limit: 1g
     restart: unless-stopped
 
   vector:
     image: timberio/vector:0.61.0-alpine
-    container_name: nexus-vector
+    container_name: holms-nexus-vector
     # Shown as "host" on every log line and incident.
-    hostname: ${VECTOR_HOSTNAME:-nexus-host}
+    hostname: ${VECTOR_HOSTNAME:-docker-host}
     command: ["--config", "/etc/vector/vector.yaml"]
     secrets: [openobserve_user, openobserve_password]
     volumes:
@@ -152,7 +152,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - vector_data:/var/lib/vector
     depends_on: [openobserve, kafka]
-    networks: [nexus]
+    networks: [holms-nexus]
     mem_limit: 256m
     restart: unless-stopped
 
@@ -161,7 +161,7 @@ services:
   # exec into or remove them, and the backend never holds the root-equivalent socket.
   docker-proxy:
     image: tecnativa/docker-socket-proxy:v0.4.2
-    container_name: nexus-docker-proxy
+    container_name: holms-nexus-docker-proxy
     environment:
       CONTAINERS: 1
       EVENTS: 1
@@ -169,7 +169,7 @@ services:
       POST: 0
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-    networks: [nexus]
+    networks: [holms-nexus]
     security_opt: ["no-new-privileges:true"]
     restart: unless-stopped
 
@@ -187,5 +187,5 @@ volumes:
   workspaces:
 
 networks:
-  nexus:
-    name: nexus
+  holms-nexus:
+    name: holms-nexus

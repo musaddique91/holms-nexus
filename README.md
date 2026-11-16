@@ -1,8 +1,8 @@
-# MVX Nexus
+# holms-nexus
 
 **An open-source AI SRE and a chat-with-your-data workspace, in one self-hosted app.**
 
-MVX Nexus watches your applications' logs, opens an incident when something breaks, has an AI
+holms-nexus watches your applications' logs, opens an incident when something breaks, has an AI
 investigate the root cause with read-only access to your logs, infrastructure and code, proposes
 a fix as a draft pull request, and tells your team on Slack, email or Telegram. The same sign-in
 gives you a chat workspace that answers questions from your own data through
@@ -33,7 +33,7 @@ OpenAI-compatible API.
 | You get | Incidents grouped from error logs, a root-cause report for each, suggested fixes, draft fix pull requests, alerts | Answers in plain language from your databases, GitHub, files and the web, with sortable tables and interactive charts |
 | How | An agent that calls read-only tools: log search, Docker, Kubernetes, AWS, Azure, Prometheus, Grafana, Loki, SQL, Kafka and more | A multi-agent workflow (planner → retrievers → analyst + visualizer) that calls tools on MCP servers you connect |
 
-Inspired by [HolmesGPT](https://github.com/HolmesGPT/holmesgpt). MVX Nexus is a separate
+Inspired by [HolmesGPT](https://github.com/HolmesGPT/holmesgpt). holms-nexus is a separate
 implementation (Spring Boot + React) with a built-in log pipeline, a web UI and MCP chat.
 
 ## How it works
@@ -205,7 +205,7 @@ database.
 ## Security
 
 The AI's tools are read-only, Docker access goes through a GET-only proxy, saved secrets are
-encrypted, and fix pull requests are drafts limited in size and scope. MVX Nexus still holds
+encrypted, and fix pull requests are drafts limited in size and scope. holms-nexus still holds
 access to your logs, infrastructure and code, so keep it private and behind HTTPS. Read
 [SECURITY.md](SECURITY.md) before exposing it, and report vulnerabilities privately as
 described there.

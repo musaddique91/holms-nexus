@@ -120,7 +120,7 @@ class HolmesApplicationIT {
     String raw = jdbc.queryForObject("select api_key from llm_provider where id = ?", String.class, seeded.providerId());
     assertThat(raw).isNotBlank().doesNotContain("test-key");
 
-    // Editing the provider under Models reaches MVXHolmes without a restart.
+    // Editing the provider under Models reaches Intelligence without a restart.
     providers.update(
         seeded.providerId(),
         new ProviderRequest("NVIDIA NIM", ProviderType.OPENAI, "demo-new-key-1234", "https://integrate.api.nvidia.com/v1",

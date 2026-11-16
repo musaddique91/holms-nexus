@@ -16,7 +16,7 @@ export function Wordmark() {
     <span className="flex items-center gap-2.5">
       <Logo size={26} />
       <span className="text-[17px] font-semibold tracking-tight">
-        MVX Nexus<span className="text-gradient">.</span>
+        holms-nexus<span className="text-gradient">.</span>
       </span>
     </span>
   )

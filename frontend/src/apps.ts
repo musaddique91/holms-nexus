@@ -1,6 +1,6 @@
 import { MessagesSquare, ShieldAlert, type LucideIcon } from 'lucide-react'
 
-/** The two applications behind the one MVX Nexus login. */
+/** The two applications behind the one holms-nexus login. */
 export type AppId = 'holmes' | 'mcp'
 
 export interface AppInfo {

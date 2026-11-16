@@ -1,5 +1,5 @@
 # SPA + API entry point. The host nginx (TLS) only forwards to this container.
-#   /api/*  -> MVX Nexus backend (MVXHolmes + MCP), including MCP's streamed chat answers
+#   /api/*  -> holms-nexus backend (Intelligence + MCP), including MCP's streamed chat answers
 #   else    -> the built SPA with history fallback
 map $http_x_forwarded_proto $forwarded_scheme {
     default $http_x_forwarded_proto;

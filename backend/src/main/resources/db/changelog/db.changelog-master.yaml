@@ -7,13 +7,13 @@ databaseChangeLog:
       file: db/changelog/003-notification-settings.sql
   - include:
       file: db/changelog/004-service-git-token.sql
-  # MCP (from Nexus MCP): servers, providers, workspaces, conversations.
+  # MCP (from the MCP app): servers, providers, workspaces, conversations.
   - include:
       file: db/changelog/mcp/001-init.sql
   - include:
       file: db/changelog/mcp/002-workspaces.sql
   - include:
       file: db/changelog/mcp/003-catalog-id-length.sql
-  # MVXHolmes uses the shared provider list (needs llm_provider from mcp/001).
+  # Intelligence uses the shared provider list (needs llm_provider from mcp/001).
   - include:
       file: db/changelog/005-llm-settings-provider.sql

@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom'
 import { useUi } from '@/store/ui'
 import { ThemePicker } from '@/components/layout/ThemePicker'
 
-/** Scrolling page area for the MVXHolmes screens, inside MCP's shell. */
+/** Scrolling page area for the Intelligence screens, inside MCP's shell. */
 export function HolmesFrame() {
   const { sidebarOpen, setSidebarOpen } = useUi()
   return (

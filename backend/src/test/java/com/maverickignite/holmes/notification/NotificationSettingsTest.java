@@ -56,7 +56,7 @@ class NotificationSettingsTest {
         config(
             Severity.HIGH,
             new Slack(true, "https://hooks.slack.com/services/T/B/x", null, null, null, null),
-            new Email(true, "smtp.gmail.com", 587, "u", "p", true, "mvx-holmes <holmes@x.com>", List.of("ops@x.com")),
+            new Email(true, "smtp.gmail.com", 587, "u", "p", true, "holms-nexus <holmes@x.com>", List.of("ops@x.com")),
             new Telegram(true, "123:abc", null, "-100123", null)));
     assertThat(NotificationSettingsService.parseSeverity("medium")).isEqualTo(Severity.MEDIUM);
     assertThatThrownBy(() -> NotificationSettingsService.parseSeverity("urgent")).isInstanceOf(BadRequestException.class);

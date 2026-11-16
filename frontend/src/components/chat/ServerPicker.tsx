@@ -58,7 +58,7 @@ export function ServerPicker({ servers, selected, onChange }: {
           </div>
           <div className="max-h-72 space-y-0.5 overflow-y-auto">
             {enabled.length === 0 && (
-              <p className="px-2.5 py-3 text-sm text-muted">No MCP servers yet. Connect one to let MVX MCP query your data.</p>
+              <p className="px-2.5 py-3 text-sm text-muted">No MCP servers yet. Connect one to let MCP query your data.</p>
             )}
             {enabled.map((s) => {
               const on = selected.includes(s.id)

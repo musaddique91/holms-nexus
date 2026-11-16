@@ -6,9 +6,9 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
- * MVX Nexus: two applications behind one login.
+ * holms-nexus: two applications behind one login.
  * <ul>
- *   <li>{@code com.maverickignite.holmes} – MVXHolmes, the AI SRE (incidents, root cause, fix PRs, alerts)
+ *   <li>{@code com.maverickignite.holmes} – Intelligence, the AI SRE (incidents, root cause, fix PRs, alerts)
  *   <li>{@code com.maverickignite.mcp} – MCP, chat with your data through MCP servers
  * </ul>
  */

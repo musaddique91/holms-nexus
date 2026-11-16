@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7
-# MVX Nexus backend. Builds from source: no Java or Maven needed on your machine.
+# holms-nexus backend. Builds from source: no Java or Maven needed on your machine.
 #   docker compose up -d --build
 # (CI that already ran `mvn package` can use Dockerfile.prebuilt instead.)
 FROM maven:3.9-eclipse-temurin-25 AS build
@@ -33,7 +33,7 @@ RUN apk add --no-cache curl tzdata ca-certificates git nodejs npm docker-cli doc
  && chown -R holmes:holmes /data /app /home/holmes
 
 WORKDIR /app
-COPY --from=build /src/target/mvx-nexus.jar app.jar
+COPY --from=build /src/target/holms-nexus.jar app.jar
 
 USER holmes
 ENV TZ=UTC \

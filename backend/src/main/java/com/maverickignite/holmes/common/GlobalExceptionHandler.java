@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Slf4j
-/** Errors from the MVXHolmes API only; the MCP app has its own handler (McpExceptionHandler). */
+/** Errors from the Intelligence API only; the MCP app has its own handler (McpExceptionHandler). */
 @RestControllerAdvice(basePackages = "com.maverickignite.holmes")
 public class GlobalExceptionHandler {
 

@@ -60,7 +60,7 @@ export function RegistryTab({ onDone }: { onDone: () => void }) {
               </div>
               <p className="text-xs text-muted">
                 Live from the official <a className="text-accent hover:underline" href="https://registry.modelcontextprotocol.io" target="_blank" rel="noreferrer">MCP Registry</a>.
-                Community servers aren't reviewed by MVX MCP — check the source before adding credentials.
+                Community servers aren't reviewed by holms-nexus — check the source before adding credentials.
               </p>
             </div>
             <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-6">

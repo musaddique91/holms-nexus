@@ -1,7 +1,7 @@
-# Log agent for the MVX Nexus stack.
+# Log agent for the holms-nexus stack.
 #
 #   docker containers ──► normalise ──┬──► OpenObserve  (every log line, for search and context)
-#                                     └──► Kafka mvx.errors (ERROR/FATAL only) ──► Intelligence
+#                                     └──► Kafka holms.errors (ERROR/FATAL only) ──► Intelligence
 #
 # Works with plain-text logs, and best with JSON logs (one object per line with a "level"
 # field; Spring Boot: LOGGING_STRUCTURED_FORMAT_CONSOLE=logstash).
@@ -15,12 +15,12 @@ secret:
 sources:
   docker:
     type: docker_logs
-    # Every container on this host except MVX Nexus's own (their names start with "nexus-").
+    # Every container on this host except holms-nexus's own (their names start with "holms-nexus-").
     # To watch only some apps instead, replace exclude_containers with
     #   include_containers: ["orders-", "payments-"]     # name prefixes
     # Vector only reads lines written after it starts: there is no backfill.
     exclude_containers:
-      - "nexus-"
+      - "holms-nexus-"
     multiline:
       mode: continue_through
       start_pattern: '^\S'
@@ -62,7 +62,7 @@ sinks:
   openobserve:
     type: http
     inputs: [normalize]
-    uri: "http://openobserve:5080/api/default/mvx_apps/_json"
+    uri: "http://openobserve:5080/api/default/holms_apps/_json"
     method: post
     auth:
       strategy: basic
@@ -79,7 +79,7 @@ sinks:
     type: kafka
     inputs: [errors]
     bootstrap_servers: "kafka:9092"
-    topic: "mvx.errors"
+    topic: "holms.errors"
     key_field: ".service"
     encoding:
       codec: json

@@ -19,7 +19,7 @@ const EXAMPLES = [
   'Which containers restarted in the last hour and why?',
   'Is orders-api healthy right now? Check logs, container state and database.',
   'Show the top errors per service in OpenObserve over the last 24 hours.',
-  'Is there consumer lag on the mvx.errors Kafka topic?',
+  'Is there consumer lag on the holms.errors Kafka topic?',
 ]
 
 export function AskPage() {

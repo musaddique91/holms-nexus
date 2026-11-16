@@ -9,7 +9,7 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * Every tunable of mvx-holmes lives under {@code holmes.*}. Defaults are chosen so a fresh
+ * Every tunable of holms-nexus lives under {@code holmes.*}. Defaults are chosen so a fresh
  * deployment is safe: auto-fix opens <em>draft</em> PRs only, and every external integration
  * stays off until it is given credentials.
  */
@@ -84,8 +84,8 @@ public class HolmesProperties {
   @Data
   public static class Kafka {
     private boolean enabled = true;
-    private String topic = "mvx.errors";
-    private String groupId = "mvx-holmes";
+    private String topic = "holms.errors";
+    private String groupId = "holms-nexus";
     private int partitions = 3;
     private int replicas = 1;
   }
@@ -95,7 +95,7 @@ public class HolmesProperties {
     /** Pull ERROR rows straight from OpenObserve on a schedule and publish them to Kafka. */
     private boolean enabled = false;
     private Duration interval = Duration.ofSeconds(30);
-    private String stream = "mvx_apps";
+    private String stream = "holms_apps";
     private String filter = "level IN ('ERROR','FATAL')";
     private int batchSize = 500;
     private Duration initialLookback = Duration.ofMinutes(5);
@@ -130,8 +130,8 @@ public class HolmesProperties {
 
   @Data
   public static class Git {
-    private String authorName = "mvx-nexus";
-    private String authorEmail = "mvx-nexus@example.com";
+    private String authorName = "holms-nexus";
+    private String authorEmail = "holms-nexus@example.com";
     private GitHub github = new GitHub();
     private GitLab gitlab = new GitLab();
   }
@@ -167,7 +167,7 @@ public class HolmesProperties {
   @Data
   public static class Email {
     private boolean enabled = false;
-    private String from = "MVX Nexus <alerts@example.com>";
+    private String from = "holms-nexus <alerts@example.com>";
     private List<String> to = new ArrayList<>();
   }
 

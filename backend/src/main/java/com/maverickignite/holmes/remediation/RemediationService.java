@@ -133,7 +133,7 @@ public class RemediationService {
               Texts.firstNonBlank(verdict.path("title").asString(null), "Fix " + incident.getTitle()), 120);
       String commitMessage =
           Texts.firstNonBlank(verdict.path("commitMessage").asString(null), "fix: " + title)
-              + "\n\nAutomated fix for mvx-holmes incident #" + incident.getId() + ".";
+              + "\n\nAutomated fix for holms-nexus incident #" + incident.getId() + ".";
       String description = verdict.path("description").asString("");
 
       String diff = ws.stageAll();
@@ -202,7 +202,7 @@ public class RemediationService {
       Set<String> changed) {
     String link = properties.getDashboardUrl().replaceFirst("/$", "") + "/incidents/" + incident.getId();
     StringBuilder sb = new StringBuilder();
-    sb.append("## Automated fix proposed by mvx-holmes\n\n");
+    sb.append("## Automated fix proposed by holms-nexus\n\n");
     sb.append("| | |\n|---|---|\n");
     sb.append("| **Incident** | [#").append(incident.getId()).append("](").append(link).append(") ")
         .append(escapePipes(incident.getTitle())).append(" |\n");

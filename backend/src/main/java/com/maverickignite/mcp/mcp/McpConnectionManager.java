@@ -46,7 +46,7 @@ public class McpConnectionManager {
     private static final int MAX_LOG_LINES = 300;
 
     private static final McpSchema.Implementation CLIENT_INFO = new McpSchema.Implementation("nexus-mcp",
-            "MVX MCP", "0.1.0");
+            "holms-nexus MCP", "0.1.0");
 
     private final Map<UUID, Connection> connections = new ConcurrentHashMap<>();
 

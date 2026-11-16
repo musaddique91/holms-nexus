@@ -16,9 +16,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
- * One-time move to the shared Models list (MVX Nexus). If MVXHolmes still uses its standalone
+ * One-time move to the shared Models list (holms-nexus). If Intelligence still uses its standalone
  * settings, they become a provider in the shared list (same URL, same key, now encrypted by the
- * shared converter) and MVXHolmes is pointed at it, so the key is managed in one place. Runs on
+ * shared converter) and Intelligence is pointed at it, so the key is managed in one place. Runs on
  * every start but does nothing once a provider is chosen. Azure keeps the standalone settings:
  * the shared list has no Azure deployment field.
  */
@@ -83,7 +83,7 @@ class SharedModelMigration implements ApplicationRunner {
         p.setBaseUrl(Texts.isBlank(s.getBaseUrl()) ? null : s.getBaseUrl());
       }
       case "ollama" -> {
-        // The shared list talks to Ollama's native API; MVXHolmes adds /v1 itself.
+        // The shared list talks to Ollama's native API; Intelligence adds /v1 itself.
         p.setType(ProviderType.OLLAMA);
         p.setBaseUrl(url == null ? null : url.replaceFirst("/v1/?$", ""));
       }
@@ -109,7 +109,7 @@ class SharedModelMigration implements ApplicationRunner {
     s.setProviderId(saved.getId());
     settings.save(s);
     log.info(
-        "MVXHolmes now uses '{}' ({}) from the shared Models list; key {}",
+        "Intelligence now uses '{}' ({}) from the shared Models list; key {}",
         saved.getName(), s.getModel(), key == null ? "not set yet" : "moved, encrypted");
     return true;
   }

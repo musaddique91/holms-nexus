@@ -1,16 +1,16 @@
-# MVX Nexus configuration (MVXHolmes + MCP). Every value can be overridden by an environment variable
+# holms-nexus configuration (Intelligence + MCP). Every value can be overridden by an environment variable
 # (relaxed binding: holmes.llm.api-key <- HOLMES_LLM_API_KEY). Lists such as databases,
 # Kafka clusters or extra services are easiest to provide in the optional file below.
 spring:
   application:
-    name: mvx-nexus
+    name: holms-nexus
   config:
     import: optional:file:${HOLMES_CONFIG_FILE:./config/holmes.yml}
   threads:
     virtual:
       enabled: true
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/mvx_holmes}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/holms_nexus}
     username: ${DB_USERNAME:holmes}
     password: ${DB_PASSWORD:holmes}
     hikari:
@@ -104,13 +104,13 @@ holmes:
     webhook-token: ${HOLMES_WEBHOOK_TOKEN:}
     kafka:
       enabled: ${HOLMES_KAFKA_ENABLED:true}
-      topic: ${HOLMES_KAFKA_TOPIC:mvx.errors}
-      group-id: ${HOLMES_KAFKA_GROUP:mvx-holmes}
+      topic: ${HOLMES_KAFKA_TOPIC:holms.errors}
+      group-id: ${HOLMES_KAFKA_GROUP:holms-nexus}
       replicas: ${HOLMES_KAFKA_REPLICAS:1}
     poller:
       enabled: ${HOLMES_POLLER_ENABLED:false}
       interval: ${HOLMES_POLLER_INTERVAL:30s}
-      stream: ${HOLMES_POLLER_STREAM:mvx_apps}
+      stream: ${HOLMES_POLLER_STREAM:holms_apps}
       filter: "level IN ('ERROR','FATAL')"
     ignore-patterns:
       # Client disconnects and similar noise that no code change can fix.
@@ -130,8 +130,8 @@ holmes:
     min-confidence: ${HOLMES_FIX_MIN_CONFIDENCE:MEDIUM}
 
   git:
-    author-name: ${HOLMES_GIT_AUTHOR_NAME:mvx-nexus}
-    author-email: ${HOLMES_GIT_AUTHOR_EMAIL:mvx-nexus@example.com}
+    author-name: ${HOLMES_GIT_AUTHOR_NAME:holms-nexus}
+    author-email: ${HOLMES_GIT_AUTHOR_EMAIL:holms-nexus@example.com}
     github:
       token: ${GITHUB_TOKEN:}
       api-url: ${GITHUB_API_URL:https://api.github.com}
@@ -147,7 +147,7 @@ holmes:
       default-channel: ${SLACK_CHANNEL:}
     email:
       enabled: ${EMAIL_ENABLED:false}
-      from: ${EMAIL_FROM:MVX Nexus <alerts@example.com>}
+      from: ${EMAIL_FROM:holms-nexus <alerts@example.com>}
       to: ${EMAIL_TO:}
     telegram:
       enabled: ${TELEGRAM_ENABLED:false}

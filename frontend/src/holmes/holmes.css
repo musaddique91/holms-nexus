@@ -1,5 +1,5 @@
 /*
- * MVXHolmes pages inside the MCP design. Holmes was written against its own token and component
+ * Intelligence pages inside the MCP design. Holmes was written against its own token and component
  * names (surface, subtle, fg-3, card, btn-primary…); they are defined here on top of MCP's theme
  * variables, so the Holmes pages follow MCP's look, light and dark, without restyling each page.
  */

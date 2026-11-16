@@ -20,9 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Runtime LLM configuration for MVXHolmes.
+ * Runtime LLM configuration for Intelligence.
  *
- * <p>In MVX Nexus the model normally comes from the shared provider list (Models, table
+ * <p>In holms-nexus the model normally comes from the shared provider list (Models, table
  * llm_provider): the row here stores which provider and model to use, plus token/temperature
  * limits. With no provider chosen, the original standalone fields (provider, base URL, encrypted
  * key) still apply, and the key falls back to HOLMES_LLM_API_KEY.
@@ -292,7 +292,7 @@ public class LlmSettingsService {
   }
 
   /**
-   * Maps a shared provider onto the client MVXHolmes builds: Anthropic natively, everything
+   * Maps a shared provider onto the client Intelligence builds: Anthropic natively, everything
    * OpenAI-compatible (OpenAI, NVIDIA, OpenRouter, Gemini, vLLM…) through its base URL, and Ollama
    * through its OpenAI-compatible /v1 endpoint.
    */

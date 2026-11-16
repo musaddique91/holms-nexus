@@ -161,7 +161,7 @@ export interface LlmSettings {
   updatedAt: string | null
   updatedBy: string | null
   providers: string[]
-  /** MVX Nexus: the shared provider in use (null = standalone settings) and the shared Models list. */
+  /** holms-nexus: the shared provider in use (null = standalone settings) and the shared Models list. */
   providerId: string | null
   providerName: string | null
   sharedProviders: SharedProvider[]

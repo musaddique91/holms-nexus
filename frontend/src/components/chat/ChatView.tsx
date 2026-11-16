@@ -184,7 +184,7 @@ export function ChatView() {
             onModelChange={sel.setModel}
           />
           <p className="mt-2 text-center text-[11px] text-muted/80">
-            MVX MCP can make mistakes — verify important figures against the source.
+            MCP can make mistakes — verify important figures against the source.
           </p>
         </div>
       </div>

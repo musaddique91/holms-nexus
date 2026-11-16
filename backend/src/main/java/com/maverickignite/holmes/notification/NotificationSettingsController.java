@@ -97,8 +97,8 @@ class NotificationSettingsController {
   private NotificationMessage sample() {
     return new NotificationMessage(
         0,
-        "Test notification from mvx-holmes",
-        "mvx-holmes",
+        "Test notification from holms-nexus",
+        "holms-nexus",
         null,
         "LOW",
         1,

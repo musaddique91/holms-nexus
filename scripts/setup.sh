@@ -40,7 +40,7 @@ cat <<EOF
 
 .env created with generated secrets.
 
-  MVX Nexus      http://localhost:8080    user: admin              password: $ADMIN_PASSWORD
+  holms-nexus      http://localhost:8080    user: admin              password: $ADMIN_PASSWORD
   OpenObserve    http://localhost:5080    user: admin@example.com  password: $OPENOBSERVE_PASSWORD
 
 These are shown once; they are also in .env (HOLMES_ADMIN_PASSWORD, OPENOBSERVE_PASSWORD).

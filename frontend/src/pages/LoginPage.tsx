@@ -39,7 +39,7 @@ export function LoginPage() {
       >
         <div className="flex flex-col items-center text-center">
           <Logo size={44} />
-          <h1 className="mt-4 text-xl font-semibold tracking-tight">Sign in to MVX Nexus</h1>
+          <h1 className="mt-4 text-xl font-semibold tracking-tight">Sign in to holms-nexus</h1>
           <p className="mt-1 text-sm text-muted">Intelligence and MCP, one account</p>
         </div>
 

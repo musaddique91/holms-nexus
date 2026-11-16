@@ -6,7 +6,7 @@ import jakarta.persistence.Converter;
 import org.springframework.stereotype.Component;
 
 /**
- * Stores provider API keys AES-GCM encrypted (same cipher and key as the MVXHolmes settings), so a
+ * Stores provider API keys AES-GCM encrypted (same cipher and key as the Intelligence settings), so a
  * database dump alone never reveals a key. Values written before encryption existed are read back
  * as they are and encrypted on the next save.
  */

@@ -55,7 +55,7 @@ export function EmptyState({ servers, hasProvider, onPick }: {
           {greeting()}. Let’s talk to <span className="text-gradient">your data.</span>
         </h1>
         <p className="mx-auto mt-3 max-w-xl text-[15px] text-muted sm:text-base">
-          Ask questions in plain language — MVX MCP calls the tools on your connected MCP servers, fetches the real data and
+          Ask questions in plain language — MCP calls the tools on your connected MCP servers, fetches the real data and
           explains it with tables and charts.
         </p>
       </motion.div>

@@ -184,7 +184,7 @@ function InstallForm({ entry, onBack, onDone }: { entry: CatalogEntry; onBack: (
           </Field>
         ))}
         {entry.runtime.includes('OAuth') && (
-          <p className="rounded-xl bg-accent-soft px-3 py-2.5 text-xs text-fg-2">Uses <code className="font-mono">mcp-remote</code>: on first connect a browser window opens on the machine running the MVX MCP backend to sign in.</p>
+          <p className="rounded-xl bg-accent-soft px-3 py-2.5 text-xs text-fg-2">Uses <code className="font-mono">mcp-remote</code>: on first connect a browser window opens on the machine running the MCP backend to sign in.</p>
         )}
         {entry.runtime.includes('uv') && (
           <p className="rounded-xl bg-elev-2 px-3 py-2.5 text-xs text-muted">Requires <code className="font-mono">uv</code> on the backend host (<code className="font-mono">brew install uv</code>).</p>

@@ -18,7 +18,7 @@ public final class Prompts {
 
   public static final String INVESTIGATION_SYSTEM =
       """
-      You are mvx-holmes, an expert on-call SRE and senior Java / Spring Boot engineer. You \
+      You are holms-nexus, an expert on-call SRE and senior Java / Spring Boot engineer. You \
       investigate production errors and find their root cause, the way a careful human engineer \
       would, using the read-only tools you are given.
 
@@ -61,7 +61,7 @@ public final class Prompts {
 
   public static final String CHAT_SYSTEM =
       """
-      You are mvx-holmes, an SRE assistant with read-only access to the team's infrastructure \
+      You are holms-nexus, an SRE assistant with read-only access to the team's infrastructure \
       through tools (logs, containers, Kubernetes, cloud, databases, queues, git). Answer the \
       operator's question by gathering real evidence with tools, then reply in concise markdown. \
       Cite what you observed; say clearly what you could not check. Never attempt to change \
@@ -71,7 +71,7 @@ public final class Prompts {
 
   public static final String FIX_SYSTEM =
       """
-      You are mvx-holmes acting as a senior engineer preparing a minimal, safe pull request that \
+      You are holms-nexus acting as a senior engineer preparing a minimal, safe pull request that \
       fixes a production error whose root cause has already been analysed.
 
       You have tools to list, search, read and edit files in a fresh clone of the repository.

@@ -267,7 +267,7 @@ export function NotificationsCard({ saved }: { saved: NotificationSettings }) {
             onChange={(v) => setSecret('smtpPassword', v)}
             help="For Gmail use an App Password, not the account password."
           />
-          <Field id="from" label="From" value={form.from} onChange={(v) => set('from', v)} placeholder="MVX Nexus <alerts@example.com>" />
+          <Field id="from" label="From" value={form.from} onChange={(v) => set('from', v)} placeholder="holms-nexus <alerts@example.com>" />
           <Field id="to" label="Recipients" value={form.to} onChange={(v) => set('to', v)} placeholder="ops@example.com, you@example.com" help="Comma-separated. A service's own recipients are added." />
         </ChannelPanel>
 

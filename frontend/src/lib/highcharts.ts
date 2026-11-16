@@ -290,7 +290,7 @@ export async function exportPdf(chart: Highcharts.Chart, title: string) {
   const pdf = new jsPDF({ orientation: width >= height ? 'landscape' : 'portrait', unit: 'pt', format: [width + 48, height + 72] })
   pdf.setFontSize(10)
   pdf.setTextColor(120)
-  pdf.text(`${title} — exported from MVX MCP ${new Date().toLocaleString()}`, 24, 28)
+  pdf.text(`${title} — exported from holms-nexus ${new Date().toLocaleString()}`, 24, 28)
   pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 24, 44, width, height)
   pdf.save(`${safeName(title)}.pdf`)
 }

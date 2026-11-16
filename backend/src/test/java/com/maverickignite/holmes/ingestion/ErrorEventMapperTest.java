@@ -58,7 +58,7 @@ class ErrorEventMapperTest {
     String payload =
         """
         {
-          "receiver": "mvx-holmes",
+          "receiver": "holms-nexus",
           "status": "firing",
           "alerts": [
             {

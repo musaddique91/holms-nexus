@@ -1,4 +1,4 @@
-# MVX Nexus backend, for CI that already ran `mvn package` (expects target/mvx-nexus.jar).
+# holms-nexus backend, for CI that already ran `mvn package` (expects target/holms-nexus.jar).
 # To build from source, use Dockerfile.
 # CLIs for the Intelligence toolsets: kubectl, docker/compose (through the read-only proxy), aws.
 # Runtimes for MCP stdio servers: node/npx and uv/uvx (catalog servers start with these), git.
@@ -22,7 +22,7 @@ RUN apk add --no-cache curl tzdata ca-certificates git nodejs npm docker-cli doc
  && chown -R holmes:holmes /data /app /home/holmes
 
 WORKDIR /app
-COPY target/mvx-nexus.jar app.jar
+COPY target/holms-nexus.jar app.jar
 
 USER holmes
 ENV TZ=UTC \

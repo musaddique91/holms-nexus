@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7
-# MVX Nexus frontend. Builds from source: no Node needed on your machine.
+# holms-nexus frontend. Builds from source: no Node needed on your machine.
 # (CI that already ran `npm run build` can use Dockerfile.prebuilt instead.)
 FROM node:22-alpine AS build
 WORKDIR /app

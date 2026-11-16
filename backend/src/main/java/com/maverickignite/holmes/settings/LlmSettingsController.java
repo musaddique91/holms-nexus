@@ -67,7 +67,7 @@ class LlmSettingsController {
       Instant updatedAt,
       String updatedBy,
       List<String> providers,
-      /* MVX Nexus: the shared provider in use (null = standalone settings) and the shared list. */
+      /* holms-nexus: the shared provider in use (null = standalone settings) and the shared list. */
       UUID providerId,
       String providerName,
       List<SharedProvider> sharedProviders) {}

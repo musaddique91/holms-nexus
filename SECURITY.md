@@ -6,9 +6,9 @@ Please do not open a public issue for a security problem. Use GitHub's private r
 instead: **Security → Report a vulnerability** on this repository. Include what you found, how to
 reproduce it and the version or commit. You should get a reply within a few days.
 
-## What MVX Nexus has access to
+## What holms-nexus has access to
 
-MVX Nexus reads logs, infrastructure state and source code, and can open pull requests. Run it
+holms-nexus reads logs, infrastructure state and source code, and can open pull requests. Run it
 with that in mind:
 
 - **Put it behind HTTPS and keep it private.** The bundled ports bind to `127.0.0.1` by default.

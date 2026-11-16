@@ -1,4 +1,4 @@
-# Nexus MCP — System Design
+# MCP — System Design
 
 Nexus lets people talk to their data. Any number of **MCP servers** (databases, SaaS APIs, files, infra) are
 grouped into **workspaces**; each question is answered by a **team of agents** that plan, fetch real data through

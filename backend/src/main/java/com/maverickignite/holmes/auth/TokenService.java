@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class TokenService {
 
-  public static final String ISSUER = "mvx-holmes";
+  public static final String ISSUER = "holms-nexus";
 
   private final JwtEncoder encoder;
   private final HolmesProperties properties;

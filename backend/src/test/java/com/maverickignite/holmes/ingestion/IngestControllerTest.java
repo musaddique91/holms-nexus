@@ -27,7 +27,7 @@ class IngestControllerTest {
     String payload =
         """
         {
-          "receiver": "mvx-holmes",
+          "receiver": "holms-nexus",
           "status": "firing",
           "alerts": [
             {
@@ -62,7 +62,7 @@ class IngestControllerTest {
 
     String payload =
         """
-        {"receiver":"mvx","status":"firing","alerts":[{"status":"firing","labels":{"alertname":"A"}}]}
+        {"receiver":"holms","status":"firing","alerts":[{"status":"firing","labels":{"alertname":"A"}}]}
         """;
 
     ResponseEntity<Map<String, Object>> response =
@@ -79,7 +79,7 @@ class IngestControllerTest {
 
     String payload =
         """
-        {"receiver":"mvx","status":"firing","alerts":[{"status":"firing","labels":{"alertname":"KubeCrash"}}]}
+        {"receiver":"holms","status":"firing","alerts":[{"status":"firing","labels":{"alertname":"KubeCrash"}}]}
         """;
 
     ResponseEntity<Map<String, Object>> response =

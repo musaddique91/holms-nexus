@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class SettingsService {
 
     public static final String DEFAULT_SYSTEM_PROMPT = """
-            You are MVX MCP, a sharp, friendly data analyst connected to the user's systems through MCP tools.
+            You are holms-nexus MCP, a sharp, friendly data analyst connected to the user's systems through MCP tools.
             - Use the available tools to fetch real data before answering questions about it; never invent data.
             - Prefer several small, targeted tool calls over one huge one. If a tool fails, explain and try another way.
             - Present results clearly: short summary first, then details. Use GitHub-flavoured markdown tables for tabular data.

@@ -10,7 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-/** Errors from the MCP API only; MVXHolmes has its own handler. */
+/** Errors from the MCP API only; Intelligence has its own handler. */
 @RestControllerAdvice(basePackages = "com.maverickignite.mcp")
 public class McpExceptionHandler {
 
