@@ -15,9 +15,7 @@ OpenAI-compatible API.
 
 ## Demo
 
-<video src="https://github.com/musaddique91/holms-nexus/raw/main/docs/demo.mp4" controls muted width="100%"></video>
-
-If the player does not load, [open the demo video directly](docs/demo.mp4).
+![holms-nexus demo, sped up 4x](docs/demo.gif)
 
 ## Screenshots
 
