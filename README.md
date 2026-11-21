@@ -13,6 +13,10 @@ for log storage, [Vector](https://vector.dev) to collect logs, and [Kafka](https
 to queue errors. Bring any AI model: Anthropic, OpenAI, NVIDIA NIM, OpenRouter, Ollama, or any
 OpenAI-compatible API.
 
+## Demo
+
+A short walkthrough of the app: [watch the demo video](docs/demo.mp4) (MP4, about 6 MB).
+
 ## Screenshots
 
 **One sign-in, two apps.** After login you choose Intelligence or MCP, and switch at any time from the sidebar.
